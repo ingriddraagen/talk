@@ -5881,13 +5881,6 @@ input RemoveStoryInput {
   id: ID!
 
   """
-  includeComments when true will remove any Comment's that were left on the
-  Story. This option should be used rarely, instead preferring to updating the
-  Story URL and/or merging with the correct Story.
-  """
-  includeComments: Boolean = false
-
-  """
   clientMutationId is required for Relay support.
   """
   clientMutationId: String!

@@ -104,7 +104,7 @@ export const Stories = (ctx: GraphContext) => ({
   merge: async (input: GQLMergeStoriesInput): Promise<Readonly<Story> | null> =>
     merge(ctx.mongo, ctx.tenant, input.destinationID, input.sourceIDs),
   remove: async (input: GQLRemoveStoryInput): Promise<Readonly<Story> | null> =>
-    remove(ctx.mongo, ctx.tenant, input.id, input.includeComments),
+    remove(ctx.mongo, ctx.tenant, input.id),
   scrape: async (input: GQLScrapeStoryInput): Promise<Readonly<Story> | null> =>
     scrape(ctx.mongo, ctx.config, ctx.tenant.id, input.id),
   updateStoryMode: async (input: GQLUpdateStoryModeInput) => {

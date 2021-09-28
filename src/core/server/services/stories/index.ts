@@ -14,7 +14,6 @@ import {
   removeStoryActions,
 } from "coral-server/models/action/comment";
 import {
-  calculateTotalCommentCount,
   mergeCommentModerationQueueCount,
   mergeCommentStatusCount,
   mergeManyCommentStories,
@@ -130,17 +129,11 @@ export async function findOrCreate(
   return story;
 }
 
-export async function remove(
-  mongo: Db,
-  tenant: Tenant,
-  storyID: string,
-  includeComments = false
-) {
+export async function remove(mongo: Db, tenant: Tenant, storyID: string) {
   // Create a logger for this function.
   const log = logger.child(
     {
       storyID,
-      includeComments,
     },
     true
   );
@@ -155,32 +148,23 @@ export async function remove(
     return null;
   }
 
-  if (includeComments) {
-    // Remove the actions associated with the comments we just removed.
-    const { deletedCount: removedActions } = await removeStoryActions(
-      mongo,
-      tenant.id,
-      story.id
-    );
+  // Remove the actions associated with the comments we just removed.
+  const { deletedCount: removedActions } = await removeStoryActions(
+    mongo,
+    tenant.id,
+    story.id
+  );
 
-    log.debug({ removedActions }, "removed actions while deleting story");
+  log.debug({ removedActions }, "removed actions while deleting story");
 
-    // Remove the comments for the story.
-    const { deletedCount: removedComments } = await removeStoryComments(
-      mongo,
-      tenant.id,
-      story.id
-    );
+  // Remove the comments for the story.
+  const { deletedCount: removedComments } = await removeStoryComments(
+    mongo,
+    tenant.id,
+    story.id
+  );
 
-    log.debug({ removedComments }, "removed comments while deleting story");
-  } else if (calculateTotalCommentCount(story.commentCounts.status) > 0) {
-    log.warn(
-      "attempted to remove story that has linked comments without consent for deleting comments"
-    );
-
-    // TODO: (wyattjoh) improve error
-    throw new Error("asset has comments, cannot remove");
-  }
+  log.debug({ removedComments }, "removed comments while deleting story");
 
   const removedStory = await removeStory(mongo, tenant.id, story.id);
   if (!removedStory) {
